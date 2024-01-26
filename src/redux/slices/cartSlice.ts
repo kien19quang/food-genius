@@ -1,6 +1,7 @@
 import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
 import { IDish, IRestaurant } from "../../interfaces/common";
 import { RootState } from "../store";
+import { memoize } from "lodash";
 
 export interface CartState {
   items: IDish[]
@@ -38,10 +39,7 @@ export const { addToCart, removeFromCart, emptyCart } = cartSlice.actions
 
 export const selectCartItems = (state: RootState) => state.cart.items
 
-export const selectCartItemsById = createSelector(
-  (state: RootState) => state.cart.items,
-  (items: IDish[]) => (id: number) => items.filter((item) => item.id === id)
-);
+export const selectCartItemsById = (state: RootState, id: number) => state.cart.items.filter((item) => item.id === id)
 
 export const selectCartTotal = (state: RootState) => state.cart.items.reduce((total, item) => total = total + item.price, 0)
 

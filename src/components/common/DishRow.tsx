@@ -12,7 +12,7 @@ export interface DishRowProps {
 
 const DishRow = ({ item }: DishRowProps) => {
   const dispatch = useDispatch()
-  const totalItems = useSelector((state: RootState) => selectCartItemsById(state)(item.id))
+  const totalItems = useSelector((state: RootState) => selectCartItemsById(state, item.id))
 
   const handleIncrease = () => {
     dispatch(addToCart(item))

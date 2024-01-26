@@ -26,3 +26,11 @@ export interface IDish {
   price: number;
   image: any;
 }
+
+
+export interface ICategory {
+  _id: string;
+  title: string;
+  description: string;
+  image: string;
+}

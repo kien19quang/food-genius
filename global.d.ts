@@ -13,4 +13,13 @@ declare global {
   }
 }
 
+declare module 'react-native-config' {
+  export interface NativeConfig {
+    BACKEND_URL: string;
+  }
+  
+  export const Config: NativeConfig
+  export default Config
+}
+
 // export function useNavigation<T extends NavigationProp>(): T;
