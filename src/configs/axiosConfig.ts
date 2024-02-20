@@ -1,4 +1,6 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios, { AxiosInstance } from "axios";
+import { Alert } from "react-native";
 import Config from "react-native-config";
 
 class BaseApi {
@@ -13,7 +15,10 @@ class BaseApi {
 
     this.axiosInstance.interceptors.request.use(
       async (config) => {
-        console.log(Config.BACKEND_URL)
+        const accessToken = await AsyncStorage.getItem('accessToken');
+        if (accessToken) {
+          config.headers.Authorization = `Bearer ${accessToken}`;
+        }
         return config;
       },
       (error) => {
@@ -25,6 +30,12 @@ class BaseApi {
 
     this.axiosInstance.interceptors.response.use((response) => {
       return response;
+    }, (error) => {
+      Alert.alert(error?.response?.data?.message || 'Lỗi không xác định')
+      console.log(error)
+      return {
+        error: error
+      }
     });
   }
 

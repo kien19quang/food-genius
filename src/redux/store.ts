@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
 import cartSlice from './slices/cartSlice'
 import restaurantSlice from './slices/restaurantSlice'
+import commonSlice from './slices/commonSlice'
 
 export const store = configureStore({
   reducer: {
+    common: commonSlice,
     cart: cartSlice,
-    restaurant: restaurantSlice
+    restaurant: restaurantSlice,
   },
 })
 

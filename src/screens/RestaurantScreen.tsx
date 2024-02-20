@@ -6,29 +6,39 @@ import { IRestaurant } from "../interfaces/common";
 import DishRow from "../components/common/DishRow";
 import CartIcon from "../components/common/CartIcon";
 import { StatusBar } from "expo-status-bar";
-import { useDispatch } from "react-redux";
-import { useEffect } from "react";
-import { setRestaurant } from "../redux/slices/restaurantSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { selectRestaurant, setRestaurant } from "../redux/slices/restaurantSlice";
+import RestaurantService from "../services/RestaurantService";
+import { setLoading } from "../redux/slices/commonSlice";
 
 const RestaurantScreen = () => {
   const { params } = useRoute()
   const item = params as IRestaurant;
+  const restaurant = useSelector(selectRestaurant)
   const navigation = useNavigation()
   const dispatch = useDispatch()
 
   useEffect(() => {
-    if (item && item.id) {
-      dispatch(setRestaurant(item))
+    if (item && item._id) {
+      handleGetDetailRestaurant()
     }
-  }, [])
+  }, [item._id])
+
+  const handleGetDetailRestaurant = async () => {
+    const restaurant = await RestaurantService.getDetailRestaurant(item._id)
+    if (restaurant) {
+      dispatch(setRestaurant(restaurant))
+    }
+  }
 
   return (
     <View>
       <CartIcon />
       <StatusBar style='light' />
-      <ScrollView>
+      <ScrollView className="bg-white h-full">
         <View className='relative'>
-          <Image className='w-full h-72' source={item.image} />
+          <Image className='w-full h-72' source={{ uri: restaurant.image }} />
 
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -43,32 +53,32 @@ const RestaurantScreen = () => {
           className='bg-white -mt-12 pt-6'
         >
           <View className='px-5'>
-            <Text className='text-3xl font-bold'>{item.name}</Text>
-            <View className='flex-row space-x-2 my-1'>
+            <Text className='text-3xl font-bold'>{restaurant.name}</Text>
+            <View className='gap-2 mt-1'>
               <View className='flex-row items-center space-x-1'>
                 <Image source={require('../../assets/images/fullStar.png')} className='h-4 w-4' /> 
-                <Text className='text-xs'>
-                  <Text className='text-green-700'>{item.stars}</Text>
+                <Text className='text-xs' numberOfLines={1}>
+                  <Text className='text-green-700'>{restaurant.stars}&nbsp;</Text>
                   <Text className='text-gray-700'>
-                    ({item.reviews} reviews) · <Text className="font-semibold text-gray-700">{item.category}</Text>
+                    ({restaurant.reviews} reviews) · <Text className="font-semibold text-gray-700">{item?.categories?.map(item => item.title).join(', ')}</Text>
                   </Text>
                 </Text>
               </View>
 
               <View className='flex-row items-center space-x-1'>
                 <MapPin color='gray' width={15} height={15} />
-                <Text className='text-gray-700 text-xs'>Nearby· {item.address}</Text>
+                <Text className='text-gray-700 text-xs'>Nearby· {restaurant.address}</Text>
               </View>
             </View>
 
-            <Text className='text-gray-500 mt-2'>{item.description}</Text>
+            <Text className='text-gray-500 mt-2'>{restaurant.description}</Text>
           </View>
         </View>
 
         <View className='pb-36 bg-white'>
           <Text className='px-4 py-4 text-2xl font-bold'>Menu</Text>
           
-          {item.dishes.map((item, index) => {
+          {restaurant.dishes.map((item, index) => {
             return (
               <DishRow key={index} item={item} />
             )

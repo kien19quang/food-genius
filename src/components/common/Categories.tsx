@@ -1,8 +1,7 @@
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native"
-import { categories } from "../../constants"
 import { useEffect, useState } from "react"
 import { ICategory } from "../../interfaces/common"
-import CategoryRepository from "../../services/repositories/CategoryRepository"
+import CategoryService from "../../services/CategoryService";
 
 const handleBtnActive = (isActive: boolean) => isActive ? 'bg-gray-600' : 'bg-gray-200';
 const handleTextActive = (isActive: boolean) => isActive ? 'font-semibold text-gray-800' : 'text-gray-500'
@@ -16,7 +15,7 @@ const Categories = () => {
   }, [])
 
   const fetchListCategory = async () => {
-    const categories = await CategoryRepository.getListCategory()
+    const categories = await CategoryService.getListCategory()
     setListCategory(categories)
   }
 

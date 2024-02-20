@@ -5,13 +5,29 @@ import { themeColors } from "../theme";
 import Categories from "../components/common/Categories";
 import { featured } from "../constants";
 import FeaturedRow from "../components/common/FeaturedRow";
+import { useEffect, useState } from "react";
+import { IFeatured } from "../interfaces/common";
+import RestaurantService from "../services/RestaurantService";
 
 export interface HomeScreenProps {
 }
 
 export default function HomeScreen (props: HomeScreenProps) {
+  const [listFeatured, setListFeatured] = useState<IFeatured[]>([])
+
+  useEffect(() => {
+    handleGetListFeatured()
+  }, [])
+
+  const handleGetListFeatured = async () => {
+    const response = await RestaurantService.getListFeatured()
+    if (response) {
+      setListFeatured(response)
+    }
+  }
+
   return (
-    <SafeAreaView className="bg-white">
+    <SafeAreaView className="bg-white h-full">
       <StatusBar barStyle="dark-content" />
       <View className="flex-row items-center space-x-2 px-4 pb-2">
         <View className="flex-row flex-1 items-center p-3 rounded-full border border-gray-300">
@@ -36,7 +52,7 @@ export default function HomeScreen (props: HomeScreenProps) {
 
         <View className='mt-5'>
           {
-            [featured, featured, featured].map((item, index) => {
+            listFeatured.map((item, index) => {
               return (
                 <FeaturedRow 
                   key={index}

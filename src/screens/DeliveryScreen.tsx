@@ -1,5 +1,4 @@
 import { Image, Text, TouchableOpacity, View } from "react-native"
-import { featured } from "../constants"
 import { useNavigation } from "@react-navigation/native"
 import MapView, { Marker } from "react-native-maps"
 import { themeColors } from "../theme"
@@ -7,11 +6,40 @@ import { Phone, X } from "react-native-feather"
 import { selectRestaurant } from "../redux/slices/restaurantSlice"
 import { useDispatch, useSelector } from "react-redux"
 import { emptyCart } from "../redux/slices/cartSlice"
+import { useEffect, useState } from "react"
+import * as Location from 'expo-location'
+import { calculateDistance } from "../utils"
 
 const DeliveryScreen = () => {
+  const [currentLocation, setCurrentLocation] = useState<any>({});
+
   const navigation = useNavigation()
   const restaurant = useSelector(selectRestaurant)
   const dispatch = useDispatch()
+
+  useEffect(() => {
+    // Lấy vị trí hiện tại của thiết bị
+    handleGetCurrentPosition()
+  }, []);
+
+  const handleGetCurrentPosition = async () => {
+    // try {
+    //   const { status } = await Location.requestForegroundPermissionsAsync();
+    //   if (status !== 'granted') {
+    //     console.log('Permission to access location was denied');
+    //     return;
+    //   }
+
+    //   const location = await Location.getCurrentPositionAsync({});
+    //   console.log(location)
+    //   const distance = calculateDistance(20.9933289, 105.7869775, Number(restaurant.lng), Number(restaurant.lat))
+    //   console.log(distance)
+
+    //   setCurrentLocation(location.coords);
+    // } catch(e) {
+    //   console.log(e)
+    // }
+  }
 
   const cancelOrder = () => {
     navigation.navigate('Home')
@@ -25,11 +53,20 @@ const DeliveryScreen = () => {
           latitude: restaurant.lat,
           longitude: restaurant.lng,
           latitudeDelta: 0.01,
-          longitudeDelta: 0.01
+          longitudeDelta: 0.01,
         }}
         className="flex-1"
         mapType='standard'
       >
+        {/* <Marker
+          coordinate={{
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
+          }}
+          title="Your Location"
+          pinColor="blue"
+        /> */}
+
         <Marker 
           coordinate={{
             latitude: restaurant.lat,

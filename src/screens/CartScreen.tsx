@@ -1,4 +1,4 @@
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native"
+import { Alert, Image, Linking, ScrollView, Text, TouchableOpacity, View } from "react-native"
 import { featured } from "../constants"
 import { themeColors } from "../theme"
 import { ArrowLeft, Minus } from "react-native-feather"
@@ -9,6 +9,9 @@ import { removeFromCart, selectCartItems, selectCartTotal } from "../redux/slice
 import { useEffect, useState } from "react"
 import { groupBy } from "lodash"
 import { IDish } from "../interfaces/common"
+import PaymentService from "../services/PaymentService"
+import { initPaymentSheet, presentPaymentSheet } from "@stripe/stripe-react-native"
+import OrderService from "../services/OrderService"
 
 const CartScreen = () => {
   const [groupItems, setGroupItems] = useState<Record<string, IDish[]>>({})
@@ -25,6 +28,50 @@ const CartScreen = () => {
     const newGroupItems = groupBy(cartItems, 'id');
     setGroupItems(newGroupItems)
   }, [cartItems])
+
+  const handleOrder = async () => {
+    const response = await PaymentService.createPaymentIntents(deliveryFee + cartTotal)
+    if (response?.paymentIntent) {
+      const currentUrl = await Linking.getInitialURL() as string
+      const initResponse = await initPaymentSheet({
+        merchantDisplayName: 'notJust.dev',
+        paymentIntentClientSecret: response.paymentIntent,
+        defaultBillingDetails: {
+          name: 'Quang Kiên',
+        },
+        returnURL: currentUrl
+      })
+
+      if (initResponse.error) {
+        console.log(initResponse.error)
+        Alert.alert('Lỗi không khởi tạo được sheet')
+        return
+      }
+
+      const paymentResponse = await presentPaymentSheet()
+
+      if (paymentResponse.error) {
+        if (paymentResponse.error.code === 'Canceled') {
+          await PaymentService.deleteTransaction(response.id)
+        }
+        else {
+          Alert.alert(`Lỗi: ${paymentResponse.error.code}`, paymentResponse.error.message)
+        }
+        return
+      }
+
+      const createOrder = await OrderService.createOrder({
+        price: deliveryFee + cartTotal,
+        isPaid: true,
+        isShipped: false,
+        restaurantId: restaurant._id,
+      })
+
+      if (createOrder) {
+        navigation.navigate('OrderPrepairing')
+      }
+    }
+  }
 
   return (
     <View className="bg-white flex-1">
@@ -67,7 +114,7 @@ const CartScreen = () => {
               <Text className='font-bold' style={{ color: themeColors.text }}>
                 {items.length} x
               </Text>
-              <Image className="h-14 w-14 rounded-full" source={dish.image} />
+              <Image className="h-14 w-14 rounded-full" source={{ uri: dish.image }} />
               <Text className='flex-1 font-bold text-gray-700'>{dish.name}</Text>
               <Text className='font-semibold text-base'>${dish.price}</Text>
               <TouchableOpacity
@@ -100,9 +147,10 @@ const CartScreen = () => {
 
         <View>
           <TouchableOpacity
-            onPress={() => navigation.navigate('OrderPrepairing')}
-            style={{ backgroundColor: themeColors.bgColor(1) }}
+            onPress={handleOrder}
+            style={{ backgroundColor: cartTotal > 0 ? themeColors.bgColor(1) : themeColors.bgDisable }}
             className='p-3 rounded-full'
+            disabled={cartTotal === 0}
           >
             <Text className='text-white text-center font-bold text-lg'>
               Place Order
