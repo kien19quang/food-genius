@@ -64,3 +64,10 @@ export interface OrderDto {
   isShipped: boolean;
   restaurantId: string;
 }
+
+export interface ICustomer {
+  _id: string;
+  name: string;
+  email: string;
+  phoneNumber: string;
+}

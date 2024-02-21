@@ -7,7 +7,7 @@ import { ArrowLeft } from 'react-native-feather';
 import { LoginDto } from '../interfaces/common';
 import AuthService from '../services/AuthService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { setIsLoggedIn } from '../redux/slices/commonSlice';
+import { setIsLoggedIn, setUserInfo } from '../redux/slices/commonSlice';
 import { useDispatch } from 'react-redux';
 
 export default function LoginScreen () {
@@ -32,8 +32,13 @@ export default function LoginScreen () {
     }
 
     if (response) {
+      const customer = response.customer;
+      delete customer.password
+      console.log(customer)
       await AsyncStorage.setItem('accessToken', response.accessToken)
+      await AsyncStorage.setItem('userInfo', JSON.stringify(customer))
       Alert.alert('Đăng nhập thành công')
+      dispatch(setUserInfo(customer))
       dispatch(setIsLoggedIn(true))
     }
   }

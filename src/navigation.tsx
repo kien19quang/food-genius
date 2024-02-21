@@ -10,10 +10,11 @@ import { useEffect, useState } from "react";
 import Loading from "./components/common/Loading";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./redux/store";
-import { setIsLoggedIn, setLoading } from "./redux/slices/commonSlice";
+import { setIsLoggedIn, setLoading, setUserInfo } from "./redux/slices/commonSlice";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import WelcomeScreen from "./screens/WelcomeScreen";
+import ProfileScreen from "./screens/ProfileScreen";
 
 const Stack = createNativeStackNavigator()
 
@@ -31,6 +32,10 @@ export default function Navigation() {
     const accessToken = await AsyncStorage.getItem('accessToken')
     dispatch(setLoading(false))
     if (accessToken) {
+      const userInfo = await AsyncStorage.getItem('userInfo')
+      if (userInfo) {
+        dispatch(setUserInfo(JSON.parse(userInfo)))
+      }
       dispatch(setIsLoggedIn(true))
     }
   }
@@ -50,6 +55,7 @@ export default function Navigation() {
             <Stack.Screen name="Cart" component={CartScreen} options={{ presentation: 'modal' }} />
             <Stack.Screen name="OrderPrepairing" component={OrderPrepairingScreen} options={{ presentation: 'fullScreenModal' }} />
             <Stack.Screen name="Delivery" component={DeliveryScreen} options={{ presentation: 'fullScreenModal' }} />
+            <Stack.Screen name="Profile" component={ProfileScreen} /> 
           </>
         ) : (
           <>

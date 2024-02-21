@@ -1,5 +1,5 @@
-import { ScrollView, StatusBar, Text, TextInput, View } from "react-native";
-import { MapPin, Search, Sliders } from "react-native-feather";
+import { ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { MapPin, Search, Settings, Sliders } from "react-native-feather";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { themeColors } from "../theme";
 import Categories from "../components/common/Categories";
@@ -8,19 +8,22 @@ import FeaturedRow from "../components/common/FeaturedRow";
 import { useEffect, useState } from "react";
 import { IFeatured } from "../interfaces/common";
 import RestaurantService from "../services/RestaurantService";
+import { useNavigation } from "@react-navigation/native";
 
 export interface HomeScreenProps {
 }
 
 export default function HomeScreen (props: HomeScreenProps) {
+  const navigation = useNavigation()
   const [listFeatured, setListFeatured] = useState<IFeatured[]>([])
+  const [activeCategory, setActiveCategory] = useState<string>('all')
 
   useEffect(() => {
     handleGetListFeatured()
-  }, [])
+  }, [activeCategory])
 
   const handleGetListFeatured = async () => {
-    const response = await RestaurantService.getListFeatured()
+    const response = await RestaurantService.getListFeatured(activeCategory)
     if (response) {
       setListFeatured(response)
     }
@@ -39,16 +42,18 @@ export default function HomeScreen (props: HomeScreenProps) {
           </View>
         </View>
 
-        <View style={{ backgroundColor: themeColors.bgColor(1) }} className='p-3 rounded-full'>
-          <Sliders height={20} width={20} strokeWidth={2.5} stroke='white' />
-        </View>
+        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+          <View style={{ backgroundColor: themeColors.bgColor(1) }} className='p-3 rounded-full'>
+            <Settings height={20} width={20} strokeWidth={2.5} stroke='white' />
+          </View>
+        </TouchableOpacity>
       </View>
 
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 50 }}
       >
-        <Categories />
+        <Categories activeCategory={activeCategory} setActiveCategory={(key: string) => setActiveCategory(key)} />
 
         <View className='mt-5'>
           {

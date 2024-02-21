@@ -6,9 +6,14 @@ import CategoryService from "../../services/CategoryService";
 const handleBtnActive = (isActive: boolean) => isActive ? 'bg-gray-600' : 'bg-gray-200';
 const handleTextActive = (isActive: boolean) => isActive ? 'font-semibold text-gray-800' : 'text-gray-500'
 
-const Categories = () => {
+export interface CategoryProps {
+  activeCategory: string;
+  setActiveCategory: (key: string) => void
+}
+
+const Categories = (props: CategoryProps) => {
+  const { activeCategory, setActiveCategory } = props
   const [listCategory, setListCategory] = useState<ICategory[]>([])
-  const [activeCategory, setActiveCategory] = useState<string>('all')
 
   useEffect(() => {
     fetchListCategory()

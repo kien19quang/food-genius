@@ -1,8 +1,12 @@
 import ApiClient from "../configs/axiosConfig";
 
 class RestaurantService {
-  async getListFeatured () {
-    const listFeatureds = await ApiClient.GET('/restaurant/featured')
+  async getListFeatured (categoryId: string) {
+    let url = '/restaurant/featured';
+    if (categoryId !== 'all') {
+      url += `?categoryId=${categoryId}`
+    }
+    const listFeatureds = await ApiClient.GET(url)
     return listFeatureds
   }
 
